@@ -151,10 +151,6 @@ func processReport(Report database.Report, reprocess bool) {
 		break
 	}
 
-	if !reprocess {
-		Report.CreatedAt = time.Now()
-	}
-
 	var Crash database.Crash
 	processCrash(tx, Report, reprocess, &Crash)
 	Report.CrashID = Crash.ID
@@ -164,7 +160,9 @@ func processReport(Report database.Report, reprocess bool) {
 	if reprocess {
 		tx.Save(&Report)
 	} else {
+		created := Report.CreatedAt
 		tx.Create(&Report)
+		tx.Model(&Report).Update("CreatedAt", created)
 	}
 
 	tx.Commit()

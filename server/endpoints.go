@@ -9,6 +9,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+        "time"
 
 	"code.videolan.org/videolan/CrashDragon/config"
 	"code.videolan.org/videolan/CrashDragon/database"
@@ -46,6 +47,14 @@ func PostReports(c *gin.Context) {
 	Report.ProcessUptime, _ = strconv.Atoi(c.Request.FormValue("ptime"))
 	Report.EMail = c.Request.FormValue("email")
 	Report.Comment = c.Request.FormValue("comments")
+
+        // preserve the original crash time, if available
+        if c.Request.FormValue("CrashTime") != "" {
+                crashtime, _ := strconv.Atoi(c.Request.FormValue("CrashTime"))
+                Report.CreatedAt = time.Unix(int64(crashtime), 0)
+                Report.UpdatedAt = time.Unix(int64(crashtime), 0)
+        }
+
 	filepath := path.Join(config.C.ContentDirectory, "Reports", Report.ID.String()[0:2], Report.ID.String()[0:4])
 	err = os.MkdirAll(filepath, 0755)
 	if err != nil {
