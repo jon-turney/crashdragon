@@ -136,6 +136,10 @@ func PostSymfiles(c *gin.Context) {
 	Symfile.Arch = parts[2]
 	Symfile.Code = parts[3]
 	Symfile.Name = parts[4]
+        // if the symbol file was produced from detached symbols, it might bogusly have a .dbg ending
+        if strings.HasSuffix(Symfile.Name, ".dbg") {
+                Symfile.Name = Symfile.Name[:len(Symfile.Name)-4]
+        }
 	filepath := path.Join(config.C.ContentDirectory, "Symfiles", Symfile.Name, Symfile.Code)
 	err = os.MkdirAll(filepath, 0755)
 	if err != nil {
